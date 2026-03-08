@@ -3,7 +3,8 @@ import sqlite3
 import os
 import json
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 
 DB_PATH = 'database.db'
 
@@ -75,11 +76,11 @@ def init_db():
 # ---- RUTAS FRONTEND ----
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
-    return send_from_directory('.', path)
+    return send_from_directory(BASE_DIR, path)
 
 
 # ---- RUTAS API CARS ----
