@@ -2,15 +2,25 @@ from flask import Flask, request, jsonify, send_from_directory
 import sqlite3
 import os
 import json
+import libsql_experimental as libsql
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 
-DB_PATH = 'database.db'
+# Configuración Turso
+TURSO_URL = os.environ.get("TURSO_DATABASE_URL")
+TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
+DB_PATH = 'database.db' # Fallback para local si no hay Turso
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    if TURSO_URL and TURSO_TOKEN:
+        # Conexión a Turso (Producción Vercel)
+        url = f"{TURSO_URL}?authToken={TURSO_TOKEN}"
+        conn = libsql.connect(TURSO_URL, auth_token=TURSO_TOKEN)
+    else:
+        # Conexión local SQLite
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
