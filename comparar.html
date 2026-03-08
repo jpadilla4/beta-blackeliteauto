@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador - Black Elite Auto</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏎️</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .compare-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-weight: 600;
+      width: 20%;
+    }
+
+    .compare-table td {
+      width: 26%;
+    }
+
+    .compare-car-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div style="display:flex; align-items:center;">
+      <a href="index.html" class="logo" style="color:var(--text-light);">Black Elite <span
+          style="color:var(--primary);">Auto</span></a>
+    </div>
+    <div class="nav-links">
+      <span id="userNameDisplay"
+        style="display:none; color:var(--text-muted); font-size:1rem; margin-right: 1rem; border-right: 1px solid var(--border-color); padding-right: 1rem;"></span>
+      <a href="index.html">Inicio</a>
+      <a href="comparar.html" id="compareLink" style="display:none;">Comparar <span id="compareCount">(0)</span></a>
+      <a href="carrito.html" id="cartBtn" style="display:none;">Carrito <span id="cartCount">(0)</span></a>
+      <a href="login.html" class="btn btn-outline" id="loginBtn">Iniciar Sesión</a>
+      <a href="inventario.html" class="btn btn-outline" id="inventoryBtn" style="display: none;">Panel</a>
+      <button id="logoutBtn" class="btn btn-primary" style="display: none;">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Comparador de
+      Vehículos Exóticos</h1>
+    <div id="compareContainer">
+      <!-- Contenido de comparación renderizado por JS -->
+    </div>
+  </div>
+
+  <div id="toastMessage" class="toast"></div>
+
+  <script src="js/database.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.DB.init();
+      const compareList = JSON.parse(localStorage.getItem('compareList')) || [];
+      const cart = JSON.parse(localStorage.getItem('userCart')) || [];
+
+      const container = document.getElementById('compareContainer');
+
+      if (compareList.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:3rem;">No tienes vehículos seleccionados para comparar.</p>';
+        return;
+      }
+
+      // Crear tabla
+      let html = `<table class="compare-table">`;
+
+      // Filas
+      const rows = [
+        { label: 'Vehículo', key: 'img' },
+        { label: 'Precio', key: 'price' },
+        { label: 'Modelo', key: 'model' },
+        { label: 'Año', key: 'year' },
+        { label: 'Condición', key: 'condition' },
+        { label: 'Categoría', key: 'category' },
+        { label: 'Millaje', key: 'mileage' },
+        { label: 'Acción', key: 'action' }
+      ];
+
+      rows.forEach(row => {
+        html += `<tr><th>${row.label}</th>`;
+        compareList.forEach(car => {
+          let val = '';
+          if (row.key === 'img') {
+            val = `<img src="${car.images[0]}" class="compare-car-img"><br><strong>${car.brand} ${car.model}</strong>`;
+          } else if (row.key === 'price') {
+            val = `<span style="color:var(--primary); font-size:1.5rem; font-weight:800;">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(car.price)}</span>`;
+          } else if (row.key === 'action') {
+            const inCart = cart.includes(car.id);
+            val = `
+                            <button class="btn ${inCart ? 'btn-outline' : 'btn-primary'}" onclick="addToCart('${car.id}', this)">
+                                ${inCart ? 'En Carrito' : 'Añadir al Carrito'}
+                            </button>
+                            <br><button class="btn btn-outline" style="margin-top:0.5rem;" onclick="processCheckoutAction('${car.id}', 'Reservado')">Reservar</button>
+                            <br><button class="btn btn-primary" style="margin-top:0.5rem; background: var(--accent); border:none; color:white;" onclick="processCheckoutAction('${car.id}', 'Comprado')">Comprar</button>
+                            <br><button class="btn" style="color:var(--text-muted); margin-top:0.5rem;" onclick="removeCompare('${car.id}')">Quitar de lista</button>
+                        `;
+          } else if (row.key === 'mileage') {
+            val = car[row.key] + ' mi';
+          } else {
+            val = car[row.key] || 'N/A';
+          }
+          html += `<td>${val}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</table>`;
+      container.innerHTML = html;
+    });
+
+    function addToCart(carId, btn) {
+      let cart = JSON.parse(localStorage.getItem('userCart')) || [];
+      if (!cart.includes(carId)) {
+        cart.push(carId);
+        localStorage.setItem('userCart', JSON.stringify(cart));
+        btn.innerText = 'En Carrito';
+        btn.className = 'btn btn-outline';
+        showToast('Añadido al carrito con éxito');
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) cartCount.innerText = cart.length;
+      }
+    }
+
+    async function processCheckoutAction(carId, actionType) {
+      try {
+        const car = await window.DB.get('cars', carId);
+        if (car) {
+          car.status = 'pendiente';
+          await window.DB.add('cars', car);
+          showToast(`¡Vehículo ${actionType} exitosamente! Nos contactaremos pronto.`);
+          setTimeout(() => window.location.reload(), 2000);
+        }
+      } catch (e) {
+        showToast('Error procesando la solicitud');
+      }
+    }
+
+    function removeCompare(carId) {
+      let compareList = JSON.parse(localStorage.getItem('compareList')) || [];
+      compareList = compareList.filter(c => c.id !== carId);
+      localStorage.setItem('compareList', JSON.stringify(compareList));
+      window.location.reload();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMessage');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+  <script>
+    // Mostrar usuario
+    document.addEventListener('DOMContentLoaded', () => {
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) {
+        const currentUser = JSON.parse(userStr);
+        const userDisplay = document.getElementById('userNameDisplay');
+        if (userDisplay) {
+          const roleName = currentUser.role === 'admin' ? 'Admin' : (currentUser.role === 'agent' ? 'Agente' : 'Cliente');
+          userDisplay.innerText = `Hola, ${currentUser.name} (${roleName})`;
+          userDisplay.style.display = 'inline-block';
+        }
+      }
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          localStorage.removeItem('currentUser');
+          window.location.href = 'login.html';
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

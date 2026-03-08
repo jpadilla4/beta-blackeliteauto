@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>Panel de Control - Black Elite Auto</title>
+       <link rel="icon"
+              href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏎️</text></svg>">
+       <link rel="stylesheet" href="css/styles.css">
+       <style>
+              .dashboard-layout {
+                     display: flex;
+                     gap: 2rem;
+                     margin-top: 2rem;
+              }
+
+              .sidebar {
+                     width: 250px;
+                     background: var(--bg-card);
+                     padding: 1.5rem;
+                     border-radius: 8px;
+                     border: 1px solid var(--border-color);
+                     height: fit-content;
+              }
+
+              .sidebar h3 {
+                     margin-bottom: 1.5rem;
+                     color: var(--primary);
+                     border-bottom: 1px solid var(--border-color);
+                     padding-bottom: 0.5rem;
+              }
+
+              .sidebar-menu {
+                     list-style: none;
+                     padding: 0;
+              }
+
+              .sidebar-menu li {
+                     margin-bottom: 0.5rem;
+              }
+
+              .sidebar-menu button {
+                     width: 100%;
+                     text-align: left;
+                     background: transparent;
+                     border: none;
+                     color: var(--text-muted);
+                     padding: 0.8rem;
+                     border-radius: 4px;
+                     cursor: pointer;
+                     transition: var(--transition);
+                     font-family: inherit;
+                     font-size: 1rem;
+              }
+
+              .sidebar-menu button:hover,
+              .sidebar-menu button.active {
+                     background: rgba(255, 255, 255, 0.05);
+                     color: var(--text-light);
+              }
+
+              .main-board {
+                     flex: 1;
+              }
+
+              .board-header {
+                     display: flex;
+                     justify-content: space-between;
+                     align-items: center;
+                     margin-bottom: 1.5rem;
+              }
+
+              .stats-grid {
+                     display: grid;
+                     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                     gap: 1rem;
+                     margin-bottom: 2rem;
+              }
+
+              .stat-card {
+                     background: var(--bg-card);
+                     padding: 1.5rem;
+                     border-radius: 8px;
+                     border: 1px solid var(--border-color);
+                     text-align: center;
+              }
+
+              .stat-card h4 {
+                     color: var(--text-muted);
+                     font-weight: 400;
+                     margin-bottom: 0.5rem;
+              }
+
+              .stat-card .value {
+                     font-size: 2rem;
+                     color: var(--primary);
+                     font-weight: 800;
+              }
+
+              .data-table {
+                     width: 100%;
+                     border-collapse: collapse;
+                     margin-top: 1rem;
+              }
+
+              .data-table th,
+              .data-table td {
+                     padding: 1rem;
+                     text-align: left;
+                     border-bottom: 1px solid var(--border-color);
+              }
+
+              .data-table th {
+                     color: var(--text-muted);
+                     font-weight: 600;
+              }
+
+              .modal {
+                     display: none;
+                     position: fixed;
+                     top: 0;
+                     left: 0;
+                     width: 100%;
+                     height: 100%;
+                     background: rgba(0, 0, 0, 0.8);
+                     z-index: 2000;
+                     justify-content: center;
+                     align-items: center;
+              }
+
+              .modal.active {
+                     display: flex;
+              }
+
+              .modal-content {
+                     background: var(--bg-card);
+                     padding: 2rem;
+                     border-radius: 8px;
+                     width: 90%;
+                     max-width: 600px;
+                     max-height: 90vh;
+                     overflow-y: auto;
+                     border: 1px solid var(--border-color);
+                     position: relative;
+              }
+
+              .close-modal {
+                     position: absolute;
+                     top: 1rem;
+                     right: 1.5rem;
+                     font-size: 1.5rem;
+                     cursor: pointer;
+                     color: var(--text-muted);
+              }
+       </style>
+</head>
+
+<body>
+       <nav class="navbar">
+              <div style="display:flex; align-items:center;">
+                     <a href="index.html" class="logo" style="color:var(--text-light);">Black Elite <span
+                                   style="color:var(--primary);">Auto</span></a>
+              </div>
+              <div class="nav-links">
+                     <span id="userNameDisplay"
+                            style="display:none; color:var(--text-muted); font-size:1rem; margin-right: 1rem; border-right: 1px solid var(--border-color); padding-right: 1rem;"></span>
+                     <a href="index.html">Inicio</a>
+                     <a href="comparar.html" id="compareLink" style="display:none;">Comparar <span
+                                   id="compareCount">(0)</span></a>
+                     <a href="carrito.html" id="cartBtn" style="display:none;">Carrito <span
+                                   id="cartCount">(0)</span></a>
+                     <a href="inventario.html" class="btn btn-outline" id="inventoryBtn"
+                            style="display: none;">Panel</a>
+                     <button id="logoutBtn" class="btn btn-primary">Cerrar Sesión</button>
+              </div>
+       </nav>
+
+       <div class="container dashboard-layout">
+              <aside class="sidebar">
+                     <h3>Panel de Control</h3>
+                     <ul class="sidebar-menu">
+                            <li><button data-view="inventory" class="active">Mi Inventario (Disponibles)</button></li>
+                            <li><button data-view="pending">Carros Pendientes</button></li>
+                            <li><button data-view="sold">Carros Vendidos & Ganancias</button></li>
+                            <li id="adminMenu"
+                                   style="display: none; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                   <span
+                                          style="color:var(--text-muted); font-size: 0.8rem; text-transform:uppercase;">Administrador</span>
+                                   <button data-view="allCars" style="margin-top: 0.5rem;">Todo el Inventario</button>
+                                   <button data-view="users">Gestionar Usuarios</button>
+                            </li>
+                     </ul>
+              </aside>
+
+              <main class="main-board">
+                     <div class="board-header">
+                            <h2 id="viewTitle">Mi Inventario</h2>
+                            <div style="display:flex; gap:0.5rem; align-items:center;">
+                                   <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+                                   <button class="btn btn-outline" id="btnImportExcel"
+                                          style="display:none; color:var(--primary); border-color:var(--primary);">Importar
+                                          Excel</button>
+                                   <button class="btn btn-primary" id="btnAddCar">+ Añadir Carro</button>
+                                   <button class="btn btn-primary" id="btnAddUser" style="display:none;">+ Añadir
+                                          Usuario</button>
+                            </div>
+                     </div>
+
+                     <div id="statsContainer" class="stats-grid" style="display: none;">
+                            <div class="stat-card">
+                                   <h4>Ventas Totales</h4>
+                                   <div class="value" id="statTotalSales">$0</div>
+                            </div>
+                            <div class="stat-card">
+                                   <h4>Mi Comisión (5%)</h4>
+                                   <div class="value" id="statCommission">$0</div>
+                            </div>
+                     </div>
+
+                     <div style="overflow-x: auto;">
+                            <table class="data-table" id="dataTable">
+                                   <thead>
+                                          <!-- Headers dinámicos -->
+                                   </thead>
+                                   <tbody>
+                                          <!-- Contenido dinámico -->
+                                   </tbody>
+                            </table>
+                     </div>
+              </main>
+       </div>
+
+       <!-- Modal Añadir/Editar Carro -->
+       <div class="modal" id="carModal">
+              <div class="modal-content">
+                     <span class="close-modal" onclick="closeCarModal()">&times;</span>
+                     <h2 id="modalCarTitle" style="margin-bottom: 1.5rem;">Añadir Vehículo</h2>
+                     <form id="carForm">
+                            <input type="hidden" id="cId">
+                            <div class="filters-row" style="margin-top:0; margin-bottom: 1rem;">
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Marca</label>
+                                          <input type="text" id="cBrand" class="input-field" required>
+                                   </div>
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Modelo</label>
+                                          <input type="text" id="cModel" class="input-field" required>
+                                   </div>
+                            </div>
+
+                            <div class="filters-row" style="margin-top:0; margin-bottom: 1rem;">
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Año</label>
+                                          <input type="number" id="cYear" class="input-field" required>
+                                   </div>
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Precio ($)</label>
+                                          <input type="number" id="cPrice" class="input-field" required>
+                                   </div>
+                            </div>
+
+                            <div class="filters-row" style="margin-top:0; margin-bottom: 1rem;">
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Categoría</label>
+                                          <select id="cCat" class="input-field">
+                                                 <option>Superdeportivo</option>
+                                                 <option>Hypercar</option>
+                                                 <option>Deportivo</option>
+                                                 <option>Lujo</option>
+                                          </select>
+                                   </div>
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Condición</label>
+                                          <select id="cCond" class="input-field">
+                                                 <option>Nuevo</option>
+                                                 <option>Usado</option>
+                                          </select>
+                                   </div>
+                            </div>
+
+                            <div class="input-group">
+                                   <label>Millaje</label>
+                                   <input type="number" id="cMiles" class="input-field" required>
+                            </div>
+
+                            <div class="input-group">
+                                   <label>URLs de Imágenes (Separadas por comas)</label>
+                                   <input type="text" id="cImgs" class="input-field">
+                            </div>
+
+                            <div class="input-group">
+                                   <div style="display: flex; justify-content: space-between; align-items: center;">
+                                          <label>Descripción</label>
+                                          <button type="button" class="btn btn-outline" id="btnAIGenerate"
+                                                 style="padding: 0.3rem 0.8rem; font-size: 0.85rem; border-color: var(--primary); color: var(--primary);"><span
+                                                        style="font-size:1.1rem">✨</span> Generar con IA</button>
+                                   </div>
+                                   <textarea id="cDesc" class="input-field" rows="4" required
+                                          style="margin-top: 0.5rem;"></textarea>
+                            </div>
+
+                            <div id="adminCarOptions"
+                                   style="display: none; padding: 1rem; background: rgba(255,165,0,0.1); border: 1px solid var(--primary); border-radius: 4px; margin-bottom: 1rem;">
+                                   <div class="input-group">
+                                          <label style="color: var(--primary);">Asignar a Agente (Username)</label>
+                                          <input type="text" id="cAgentId" class="input-field">
+                                   </div>
+                                   <div class="input-group">
+                                          <label style="color: var(--primary);">Nota para el vendedor</label>
+                                          <textarea id="cAdminNote" class="input-field" rows="2"></textarea>
+                                   </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Guardar Vehículo</button>
+                     </form>
+              </div>
+       </div>
+
+       <!-- Modal Añadir/Editar Usuario -->
+       <div class="modal" id="userModal">
+              <div class="modal-content">
+                     <span class="close-modal" onclick="closeUserModal()">&times;</span>
+                     <h2 id="modalUserTitle" style="margin-bottom: 1.5rem;">Añadir Usuario</h2>
+                     <form id="userForm">
+                            <input type="hidden" id="uOriginalUsername">
+
+                            <div class="input-group">
+                                   <label>Nombre de Usuario (ID Lógico)</label>
+                                   <input type="text" id="uUsername" class="input-field" required>
+                                   <small style="color:var(--text-muted);">Debe ser único, ej: jpadilla</small>
+                            </div>
+
+                            <div class="input-group">
+                                   <label>Contraseña</label>
+                                   <input type="text" id="uPassword" class="input-field" required>
+                            </div>
+
+                            <div class="filters-row" style="margin-top:0; margin-bottom: 1rem;">
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Nombre</label>
+                                          <input type="text" id="uName" class="input-field" required>
+                                   </div>
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Apellido</label>
+                                          <input type="text" id="uLastName" class="input-field" required>
+                                   </div>
+                            </div>
+
+                            <div class="filters-row" style="margin-top:0; margin-bottom: 1rem;">
+                                   <div class="input-group" style="flex:1;">
+                                          <label>Rol</label>
+                                          <select id="uRole" class="input-field">
+                                                 <option value="buyer">Comprador (Buyer)</option>
+                                                 <option value="agent">Agente de Ventas (Agent)</option>
+                                                 <option value="admin">Administrador (Admin)</option>
+                                          </select>
+                                   </div>
+                                   <div class="input-group" style="flex:1;">
+                                          <label>ID Empleado (Opcional)</label>
+                                          <input type="text" id="uEmpId" class="input-field">
+                                   </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Guardar Usuario</button>
+                     </form>
+              </div>
+       </div>
+
+       <div id="toastMessage" class="toast"></div>
+
+       <script src="js/database.js"></script>
+       <script src="js/inventory.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>Acceso - Black Elite Auto</title>
+       <link rel="icon"
+              href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏎️</text></svg>">
+       <link rel="stylesheet" href="css/styles.css">
+       <style>
+              .tabs {
+                     display: flex;
+                     margin-bottom: 2rem;
+                     border-bottom: 1px solid var(--border-color);
+              }
+
+              .tab {
+                     flex: 1;
+                     text-align: center;
+                     padding: 1rem;
+                     cursor: pointer;
+                     color: var(--text-muted);
+                     border-bottom: 2px solid transparent;
+                     transition: var(--transition);
+              }
+
+              .tab.active {
+                     color: var(--primary);
+                     border-bottom-color: var(--primary);
+              }
+
+              .tab-content {
+                     display: none;
+              }
+
+              .tab-content.active {
+                     display: block;
+              }
+       </style>
+       <script>
+              // Script para mostrar usuario en NavBar
+              document.addEventListener('DOMContentLoaded', () => {
+                     const userStr = localStorage.getItem('currentUser');
+                     if (userStr) {
+                            const currentUser = JSON.parse(userStr);
+                            const userDisplay = document.getElementById('userNameDisplay');
+                            if (userDisplay) {
+                                   const roleName = currentUser.role === 'admin' ? 'Admin' : (currentUser.role === 'agent' ? 'Agente' : 'Cliente');
+                                   userDisplay.innerText = `Hola, ${currentUser.name} (${roleName})`;
+                                   userDisplay.style.display = 'inline-block';
+                            }
+                     }
+              });
+       </script>
+</head>
+
+<body>
+       <nav class="navbar">
+              <div style="display:flex; align-items:center;">
+                     <a href="index.html" class="logo" style="color:var(--text-light);">Black Elite <span
+                                   style="color:var(--primary);">Auto</span></a>
+              </div>
+              <div class="nav-links">
+                     <span id="userNameDisplay"
+                            style="display:none; color:var(--text-muted); font-size:1rem; margin-right: 1rem; border-right: 1px solid var(--border-color); padding-right: 1rem;"></span>
+                     <a href="index.html">Inicio</a>
+                     <a href="comparar.html" id="compareLink" style="display:none;">Comparar <span
+                                   id="compareCount">(0)</span></a>
+                     <a href="carrito.html" id="cartBtn" style="display:none;">Carrito <span
+                                   id="cartCount">(0)</span></a>
+                     <a href="login.html" class="btn btn-outline" id="loginBtn">Iniciar Sesión</a>
+                     <a href="inventario.html" class="btn btn-outline" id="inventoryBtn"
+                            style="display: none;">Panel</a>
+                     <button id="logoutBtn" class="btn btn-primary" style="display: none;">Cerrar Sesión</button>
+              </div>
+       </nav>
+
+       <div class="container">
+              <div class="auth-container">
+                     <div class="auth-header">
+                            <h2>Acceso al Sistema</h2>
+                            <p>Selecciona tu acción</p>
+                     </div>
+
+                     <div class="tabs">
+                            <div class="tab active" data-target="loginTab">Ingresar</div>
+                            <div class="tab" data-target="buyerTab">Nuevo Comprador</div>
+                            <div class="tab" data-target="agentTab">Solicitud Agente</div>
+                     </div>
+
+                     <!-- Formulario Login -->
+                     <div id="loginTab" class="tab-content active">
+                            <form id="loginForm">
+                                   <div class="input-group">
+                                          <label for="loginUser">Usuario</label>
+                                          <input type="text" id="loginUser" class="input-field" required
+                                                 placeholder="jpadilla | admin">
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="loginPass">Contraseña</label>
+                                          <input type="password" id="loginPass" class="input-field" required>
+                                   </div>
+                                   <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar
+                                          Sesión</button>
+                            </form>
+                     </div>
+
+                     <!-- Formulario Registro Comprador -->
+                     <div id="buyerTab" class="tab-content">
+                            <form id="buyerRegForm">
+                                   <div class="input-group">
+                                          <label for="bName">Nombre</label>
+                                          <input type="text" id="bName" class="input-field" required>
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="bLastName">Apellido</label>
+                                          <input type="text" id="bLastName" class="input-field" required>
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="bUser">Usuario de acceso</label>
+                                          <input type="text" id="bUser" class="input-field" required>
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="bPass">Contraseña</label>
+                                          <input type="password" id="bPass" class="input-field" required>
+                                   </div>
+                                   <button type="submit" class="btn btn-primary" style="width: 100%;">Crear
+                                          Cuenta</button>
+                            </form>
+                     </div>
+
+                     <!-- Formulario Registro Agente -->
+                     <div id="agentTab" class="tab-content">
+                            <form id="agentRegForm">
+                                   <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                          Tu usuario será generado automáticamente usando la primera letra de tu nombre
+                                          y tu apellido completo.
+                                   </p>
+                                   <div class="input-group">
+                                          <label for="aName">Nombre</label>
+                                          <input type="text" id="aName" class="input-field" required>
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="aLastName">Apellido Completo</label>
+                                          <input type="text" id="aLastName" class="input-field" required
+                                                 placeholder="Ej. Padilla">
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="aEmpId">Número de Empleado</label>
+                                          <input type="text" id="aEmpId" class="input-field" required
+                                                 placeholder="Ej. EMP-002">
+                                   </div>
+                                   <div class="input-group">
+                                          <label for="aPass">Crea tu Contraseña</label>
+                                          <input type="password" id="aPass" class="input-field" required>
+                                   </div>
+                                   <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar
+                                          Agente</button>
+                            </form>
+                     </div>
+              </div>
+       </div>
+
+       <div id="toastMessage" class="toast"></div>
+
+       <script src="js/database.js"></script>
+       <script src="js/auth.js"></script>
+</body>
+
+</html>

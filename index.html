@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Elite Auto - Concesionario Premium</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏎️</text></svg>">
+  <meta name="description"
+    content="Concesionario de autos exóticos, deportivos y de lujo. Encuentra el auto de tus sueños.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div style="display:flex; align-items:center;">
+      <a href="index.html" class="logo" style="color:var(--text-light);">Black Elite <span
+          style="color:var(--primary);">Auto</span></a>
+    </div>
+    <div class="nav-links">
+      <span id="userNameDisplay"
+        style="display:none; color:var(--text-muted); font-size:1rem; margin-right: 1rem; border-right: 1px solid var(--border-color); padding-right: 1rem;"></span>
+      <a href="index.html">Inicio</a>
+      <a href="comparar.html" id="compareLink" style="display:none;">Comparar <span id="compareCount">(0)</span></a>
+      <a href="carrito.html" id="cartBtn" style="display:none;">Carrito <span id="cartCount">(0)</span></a>
+      <a href="login.html" class="btn btn-outline" id="loginBtn">Iniciar Sesión</a>
+      <a href="inventario.html" class="btn btn-outline" id="inventoryBtn" style="display: none;">Panel</a>
+      <button id="logoutBtn" class="btn btn-primary" style="display: none;">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <h1>Poder y Elegancia en <span>Movimiento</span></h1>
+    <p>Explora nuestro exclusivo inventario compuesto de los autos más codiciados del mundo.</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Search & Filters -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" class="input-field search-input"
+          placeholder="Buscar por marca, modelo, o categoría...">
+        <button id="searchBtn" class="btn btn-primary">Buscar</button>
+      </div>
+      <div class="filters-row">
+        <select id="filterCategory" class="filter-select">
+          <option value="">Todas las Categorías</option>
+          <option value="Superdeportivo">Superdeportivo</option>
+          <option value="Hypercar">Hypercar</option>
+          <option value="Deportivo">Deportivo</option>
+          <option value="Lujo">Lujo</option>
+        </select>
+        <select id="filterCondition" class="filter-select">
+          <option value="">Cualquier Condición</option>
+          <option value="Nuevo">Nuevo</option>
+          <option value="Usado">Usado</option>
+        </select>
+        <select id="filterPrice" class="filter-select">
+          <option value="">Cualquier Precio</option>
+          <option value="0-100000">Menos de $100k</option>
+          <option value="100000-300000">$100k - $300k</option>
+          <option value="300000-500000">$300k - $500k</option>
+          <option value="500000+">Más de $500k</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Inventory Grid -->
+    <section>
+      <div class="car-grid" id="inventoryGrid">
+        <!-- Car Cards will be injected by app.js -->
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="paginationControls">
+        <!-- Pagination buttons will be injected by app.js -->
+      </div>
+    </section>
+  </main>
+
+  <div id="toastMessage" class="toast">Mensaje de notificación</div>
+
+  <!-- Scripts -->
+  <script src="js/database.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
